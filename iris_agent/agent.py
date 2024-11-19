@@ -18,10 +18,13 @@ ROOTDIR = Path(__file__).parent
 
 
 class Agent(nn.Module):
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None, local_checkpoint=None):
         super().__init__()
-        name = name if name is not None else _prompt()
-        sd = _load_ckpt(name)
+        if local_checkpoint is not None:
+            sd = torch.load(local_checkpoint, map_location="cpu")
+        else:
+            name = name if name is not None else _prompt()
+            sd = _load_ckpt(name)
         sda = _extract_state_dict(sd, "actor_critic")
         sdt = _extract_state_dict(sd, "tokenizer")
         enc_dec_cfg = EncoderDecoderConfig(resolution=64, in_channels=3, z_channels=512, ch=64, ch_mult=(1, 1, 1, 1, 1),
